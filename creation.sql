@@ -29,6 +29,7 @@ CREATE TABLE "pricing"(
     price REAL NOT NULL,
     discount REAL,
     lesson_type VARCHAR (100) NOT NULL,
+    completed BIT (1) NOT NULL DEFAULT '0',
     CHECK (discount >= 0 AND discount <= 100),
     CHECK (price >= 0),
     PRIMARY KEY (id)

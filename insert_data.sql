@@ -50,26 +50,26 @@ VALUES
 -- We know that the prices inserted here are not following the business rules, these are here to test the database
 INSERT INTO "pricing" (price, discount, lesson_type)
 VALUES
-    (TRUNC((RANDOM() * 100 + 20)::numeric, 2), TRUNC((RANDOM() * 10)::numeric, 2), 'Lesson'),
-    (TRUNC((RANDOM() * 150 + 50)::numeric, 2), TRUNC((RANDOM() * 15)::numeric, 2), 'Group Lesson'),
-    (TRUNC((RANDOM() * 120 + 30)::numeric, 2), TRUNC((RANDOM() * 8)::numeric, 2), 'Ensemble'),
-    (TRUNC((RANDOM() * 80 + 10)::numeric, 2), TRUNC((RANDOM() * 5)::numeric, 2), 'Lesson'),
-    (TRUNC((RANDOM() * 140 + 20)::numeric, 2), TRUNC((RANDOM() * 12)::numeric, 2), 'Group Lesson'),
-    (TRUNC((RANDOM() * 110 + 25)::numeric, 2), TRUNC((RANDOM() * 7)::numeric, 2), 'Ensemble'),
-    (TRUNC((RANDOM() * 90 + 20)::numeric, 2), TRUNC((RANDOM() * 10)::numeric, 2), 'Lesson'),
-    (TRUNC((RANDOM() * 130 + 40)::numeric, 2), TRUNC((RANDOM() * 14)::numeric, 2), 'Group Lesson'),
-    (TRUNC((RANDOM() * 100 + 30)::numeric, 2), TRUNC((RANDOM() * 9)::numeric, 2), 'Ensemble'),
-    (TRUNC((RANDOM() * 95 + 15)::numeric, 2), TRUNC((RANDOM() * 6)::numeric, 2), 'Lesson'),
-    (TRUNC((RANDOM() * 120 + 50)::numeric, 2), TRUNC((RANDOM() * 18)::numeric, 2), 'Group Lesson'),
-    (TRUNC((RANDOM() * 80 + 20)::numeric, 2), TRUNC((RANDOM() * 4)::numeric, 2), 'Ensemble'),
-    (TRUNC((RANDOM() * 140 + 60)::numeric, 2), TRUNC((RANDOM() * 11)::numeric, 2), 'Lesson'),
-    (TRUNC((RANDOM() * 110 + 30)::numeric, 2), TRUNC((RANDOM() * 15)::numeric, 2), 'Group Lesson'),
-    (TRUNC((RANDOM() * 95 + 25)::numeric, 2), TRUNC((RANDOM() * 6)::numeric, 2), 'Ensemble'),
-    (TRUNC((RANDOM() * 125 + 20)::numeric, 2), TRUNC((RANDOM() * 7)::numeric, 2), 'Lesson'),
-    (TRUNC((RANDOM() * 150 + 35)::numeric, 2), TRUNC((RANDOM() * 20)::numeric, 2), 'Group Lesson'),
-    (TRUNC((RANDOM() * 100 + 10)::numeric, 2), TRUNC((RANDOM() * 5)::numeric, 2), 'Ensemble'),
-    (TRUNC((RANDOM() * 130 + 40)::numeric, 2), TRUNC((RANDOM() * 12)::numeric, 2), 'Lesson'),
-    (TRUNC((RANDOM() * 120 + 25)::numeric, 2), TRUNC((RANDOM() * 9)::numeric, 2), 'Group Lesson');
+    (TRUNC((RANDOM() * 100 + 20)::numeric, 2), TRUNC((RANDOM() * 10)::numeric, 2), 'Lesson', '0'),
+    (TRUNC((RANDOM() * 150 + 50)::numeric, 2), TRUNC((RANDOM() * 15)::numeric, 2), 'Group Lesson', '0'),
+    (TRUNC((RANDOM() * 120 + 30)::numeric, 2), TRUNC((RANDOM() * 8)::numeric, 2), 'Ensemble', '0'),
+    (TRUNC((RANDOM() * 80 + 10)::numeric, 2), TRUNC((RANDOM() * 5)::numeric, 2), 'Lesson', '0'),
+    (TRUNC((RANDOM() * 140 + 20)::numeric, 2), TRUNC((RANDOM() * 12)::numeric, 2), 'Group Lesson', '0'),
+    (TRUNC((RANDOM() * 110 + 25)::numeric, 2), TRUNC((RANDOM() * 7)::numeric, 2), 'Ensemble', '0'),
+    (TRUNC((RANDOM() * 90 + 20)::numeric, 2), TRUNC((RANDOM() * 10)::numeric, 2), 'Lesson', '1'),
+    (TRUNC((RANDOM() * 130 + 40)::numeric, 2), TRUNC((RANDOM() * 14)::numeric, 2), 'Group Lesson', '1'),
+    (TRUNC((RANDOM() * 100 + 30)::numeric, 2), TRUNC((RANDOM() * 9)::numeric, 2), 'Ensemble', '0'),
+    (TRUNC((RANDOM() * 95 + 15)::numeric, 2), TRUNC((RANDOM() * 6)::numeric, 2), 'Lesson', '0'),
+    (TRUNC((RANDOM() * 120 + 50)::numeric, 2), TRUNC((RANDOM() * 18)::numeric, 2), 'Group Lesson', '0'),
+    (TRUNC((RANDOM() * 80 + 20)::numeric, 2), TRUNC((RANDOM() * 4)::numeric, 2), 'Ensemble', '1'),
+    (TRUNC((RANDOM() * 140 + 60)::numeric, 2), TRUNC((RANDOM() * 11)::numeric, 2), 'Lesson', '0'),
+    (TRUNC((RANDOM() * 110 + 30)::numeric, 2), TRUNC((RANDOM() * 15)::numeric, 2), 'Group Lesson', '0'),
+    (TRUNC((RANDOM() * 95 + 25)::numeric, 2), TRUNC((RANDOM() * 6)::numeric, 2), 'Ensemble', '0'),
+    (TRUNC((RANDOM() * 125 + 20)::numeric, 2), TRUNC((RANDOM() * 7)::numeric, 2), 'Lesson', '1'),
+    (TRUNC((RANDOM() * 150 + 35)::numeric, 2), TRUNC((RANDOM() * 20)::numeric, 2), 'Group Lesson', '0'),
+    (TRUNC((RANDOM() * 100 + 10)::numeric, 2), TRUNC((RANDOM() * 5)::numeric, 2), 'Ensemble', '0'),
+    (TRUNC((RANDOM() * 130 + 40)::numeric, 2), TRUNC((RANDOM() * 12)::numeric, 2), 'Lesson', '0'),
+    (TRUNC((RANDOM() * 120 + 25)::numeric, 2), TRUNC((RANDOM() * 9)::numeric, 2), 'Group Lesson', '0');
 
 INSERT INTO "instrument_type" (general_name)
 VALUES
