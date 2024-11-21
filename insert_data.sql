@@ -48,7 +48,7 @@ VALUES
     ('2023-08-22 19:15:00', '2023-08-22 20:15:00');
 
 -- We know that the prices inserted here are not following the business rules, these are here to test the database
-INSERT INTO "pricing" (price, discount, lesson_type)
+INSERT INTO "pricing" (price, discount, lesson_type, completed)
 VALUES
     (TRUNC((RANDOM() * 100 + 20)::numeric, 2), TRUNC((RANDOM() * 10)::numeric, 2), 'Lesson', '0'),
     (TRUNC((RANDOM() * 150 + 50)::numeric, 2), TRUNC((RANDOM() * 15)::numeric, 2), 'Group Lesson', '0'),
