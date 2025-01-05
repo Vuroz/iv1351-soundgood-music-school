@@ -1,197 +1,252 @@
-DROP TABLE IF EXISTS "student_time_slot";
-DROP TABLE IF EXISTS "person_address";
-DROP TABLE IF EXISTS "lease";
-DROP TABLE IF EXISTS "booking";
-DROP TABLE IF EXISTS "group_lesson";
-DROP TABLE IF EXISTS "lesson";
-DROP TABLE IF EXISTS "instrument_proficiency";
-DROP TABLE IF EXISTS "instrument";
-DROP TABLE IF EXISTS "ensemble";
-DROP TABLE IF EXISTS "instructor";
-DROP TABLE IF EXISTS "student";
-DROP TABLE IF EXISTS "address";
-DROP TABLE IF EXISTS "contact_details";
-DROP TABLE IF EXISTS "instrument_type";
-DROP TABLE IF EXISTS "person";
-DROP TABLE IF EXISTS "pricing";
-DROP TABLE IF EXISTS "time_slot";
-
-CREATE TABLE "time_slot" (
-    id INT GENERATED ALWAYS AS IDENTITY,
-    start_time TIMESTAMP(6) NOT NULL,
-    end_time TIMESTAMP(6) NOT NULL,
-    CHECK (start_time < end_time),
-    PRIMARY KEY(id)
+CREATE TABLE address (
+ id INT GENERATED ALWAYS AS IDENTITY NOT NULL,
+ zip_code VARCHAR(5) NOT NULL,
+ city VARCHAR(100) NOT NULL,
+ street VARCHAR(100) NOT NULL,
+ house_number VARCHAR(10) NOT NULL,
+ apartment_number VARCHAR(10)
 );
 
-CREATE TABLE "pricing"(
-    id INT GENERATED ALWAYS AS IDENTITY,
-    price REAL NOT NULL,
-    discount REAL,
-    lesson_type VARCHAR (100) NOT NULL,
-    completed BIT (1) NOT NULL DEFAULT '0',
-    CHECK (discount >= 0 AND discount <= 100),
-    CHECK (price >= 0),
-    PRIMARY KEY (id)
+ALTER TABLE address ADD CONSTRAINT PK_address PRIMARY KEY (id);
+
+
+CREATE TABLE instrument_type (
+ id INT GENERATED ALWAYS AS IDENTITY NOT NULL,
+ general_name VARCHAR(100) NOT NULL
 );
 
-CREATE TABLE "person" (
-    id INT GENERATED ALWAYS AS IDENTITY,
-    person_number VARCHAR(12) NOT NULL UNIQUE,
-    name VARCHAR(100) NOT NULL,
-    CHECK (person_number ~ '^[\d]{12}$'),
-    PRIMARY KEY (id)
+ALTER TABLE instrument_type ADD CONSTRAINT PK_instrument_type PRIMARY KEY (id);
+
+
+CREATE TABLE person (
+ id INT GENERATED ALWAYS AS IDENTITY NOT NULL,
+ person_number VARCHAR(12) NOT NULL UNIQUE,
+ name VARCHAR(100) NOT NULL
 );
 
-CREATE TABLE "instrument_type" (
-    id INT GENERATED ALWAYS AS IDENTITY,
-    general_name VARCHAR(100) NOT NULL,
-    PRIMARY KEY (id)
+ALTER TABLE person ADD CONSTRAINT PK_person PRIMARY KEY (id);
+
+
+CREATE TABLE person_address (
+ person_id INT NOT NULL,
+ address_id INT NOT NULL
 );
 
-CREATE TABLE "contact_details"(
-    id INT GENERATED ALWAYS AS IDENTITY,
-    person_id INT NOT NULL,
-    relation VARCHAR (100) NOT NULL,
-    phone_number VARCHAR (16) NOT NULL,
-    email VARCHAR (100) NOT NULL,
-    PRIMARY KEY(id, person_id),
-    CONSTRAINT fk_person_id FOREIGN KEY (person_id) REFERENCES person(id) ON DELETE CASCADE
+ALTER TABLE person_address ADD CONSTRAINT PK_person_address PRIMARY KEY (person_id,address_id);
+
+
+CREATE TABLE pricing (
+ id INT GENERATED ALWAYS AS IDENTITY NOT NULL,
+ price REAL NOT NULL,
+ active_from TIMESTAMP(6) NOT NULL,
+ lesson_type VARCHAR(100) NOT NULL,
+ level SMALLINT NOT NULL
 );
 
-CREATE TABLE "address" (
-  id INT GENERATED ALWAYS AS IDENTITY,
-  zip_code varchar(5) NOT NULL,
-  city varchar(100) NOT NULL,
-  street varchar(100) NOT NULL,
-  house_number varchar(10) NOT NULL,
-  apartment_number varchar(10),
-  CHECK (zip_code ~ '^[\d]{5}$'),
-  PRIMARY KEY (id)
+ALTER TABLE pricing ADD CONSTRAINT PK_pricing PRIMARY KEY (id);
+
+
+CREATE TABLE student (
+ person_id INT NOT NULL,
+ level SMALLINT NOT NULL,
+ sibling_id INT NOT NULL
 );
 
-CREATE TABLE "student" (
-    person_id INT NOT NULL,
-    level SMALLINT NOT NULL,
-    sibling_id INT NOT NULL,
-    CONSTRAINT fk_person FOREIGN KEY (person_id) REFERENCES person(id) ON DELETE CASCADE,
-    PRIMARY KEY(person_id)
+ALTER TABLE student ADD CONSTRAINT PK_student PRIMARY KEY (person_id);
+
+
+CREATE TABLE time_slot (
+ id INT GENERATED ALWAYS AS IDENTITY NOT NULL,
+ start_time TIMESTAMP(6) NOT NULL,
+ end_time TIMESTAMP(6) NOT NULL
 );
 
-CREATE TABLE "instructor" (
-    person_id INT NOT NULL,
-    can_teach_ensemble BIT(1) NOT NULL,
-    CONSTRAINT fk_person FOREIGN KEY (person_id) REFERENCES person(id) ON DELETE CASCADE,
-    PRIMARY KEY (person_id)
+ALTER TABLE time_slot ADD CONSTRAINT PK_time_slot PRIMARY KEY (id);
+
+
+CREATE TABLE contact_details (
+ person_id INT GENERATED ALWAYS AS IDENTITY NOT NULL,
+ phone_number VARCHAR(100),
+ email VARCHAR(250)
 );
 
-CREATE TABLE "ensemble" (
-    id INT GENERATED ALWAYS AS IDENTITY,
-    instructor_id INT NOT NULL,
-    time_slot_id INT NOT NULL,
-    level SMALLINT NOT NULL,
-    genre VARCHAR(100) NOT NULL,
-    min_students INT NOT NULL,
-    max_students INT NOT NULL,
-    CONSTRAINT fk_instructor FOREIGN KEY (instructor_id) REFERENCES instructor(person_id) ON DELETE CASCADE,
-    CONSTRAINT fk_time_slot FOREIGN KEY (time_slot_id) REFERENCES time_slot(id) ON DELETE CASCADE,
-    CHECK (min_students <= max_students),
-    PRIMARY KEY(id)
+ALTER TABLE contact_details ADD CONSTRAINT PK_contact_details PRIMARY KEY (person_id);
+
+
+CREATE TABLE contact_person (
+ id INT GENERATED ALWAYS AS IDENTITY NOT NULL,
+ person_id INT NOT NULL,
+ relation VARCHAR(100) NOT NULL,
+ phone_number VARCHAR(16) NOT NULL,
+ email VARCHAR(100) NOT NULL
 );
 
-CREATE TABLE "instrument" (
-    id INT GENERATED ALWAYS AS IDENTITY,
-    instrument_type_id INT NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    brand VARCHAR(100) NOT NULL,
-    CONSTRAINT fk_instrument_type FOREIGN KEY (instrument_type_id) REFERENCES instrument_type(id) ON DELETE NO ACTION,
-    PRIMARY KEY (id)
+ALTER TABLE contact_person ADD CONSTRAINT PK_contact_person PRIMARY KEY (id,person_id);
+
+
+CREATE TABLE instructor (
+ person_id INT NOT NULL,
+ can_teach_ensemble BIT(1) NOT NULL
 );
 
-CREATE TABLE "instrument_proficiency" (
-    id INT GENERATED ALWAYS AS IDENTITY,
-    instructor_id INT NOT NULL,
-    instrument_type_id INT NOT NULL,
-    proficiency SMALLINT NOT NULL,
-    CONSTRAINT fk_instructor FOREIGN KEY (instructor_id) REFERENCES instructor(person_id) ON DELETE CASCADE,
-    CONSTRAINT fk_instrument_type FOREIGN KEY (instrument_type_id) REFERENCES instrument_type(id) ON DELETE NO ACTION,
-    PRIMARY KEY (id)
+ALTER TABLE instructor ADD CONSTRAINT PK_instructor PRIMARY KEY (person_id);
+
+
+CREATE TABLE instructor_schedule (
+ instructor_id INT NOT NULL,
+ time_slot_id INT NOT NULL
 );
 
-CREATE TABLE "lesson" (
-    id INT GENERATED ALWAYS AS IDENTITY,
-    instructor_id INT NOT NULL,
-    instrument_type_id INT NOT NULL,
-    level SMALLINT NOT NULL,
-    CONSTRAINT fk_instructor FOREIGN KEY (instructor_id) REFERENCES instructor(person_id) ON DELETE CASCADE,
-    CONSTRAINT fk_instrument_type FOREIGN KEY (instrument_type_id) REFERENCES instrument_type(id) ON DELETE NO ACTION,
-    PRIMARY KEY(id)
+ALTER TABLE instructor_schedule ADD CONSTRAINT PK_instructor_schedule PRIMARY KEY (instructor_id,time_slot_id);
+
+
+CREATE TABLE instrument (
+ id INT GENERATED ALWAYS AS IDENTITY NOT NULL,
+ instrument_type_id INT NOT NULL,
+ name VARCHAR(100) NOT NULL,
+ brand VARCHAR(100) NOT NULL
 );
 
-CREATE TABLE "group_lesson" (
-    id INT GENERATED ALWAYS AS IDENTITY,
-    lesson_id INT NOT NULL,
-    time_slot_id INT NOT NULL,
-    min_students INT NOT NULL,
-    CONSTRAINT fk_lesson FOREIGN KEY (lesson_id) REFERENCES lesson(id) ON DELETE CASCADE,
-    CONSTRAINT fk_time_slot FOREIGN KEY (time_slot_id) REFERENCES time_slot(id) ON DELETE CASCADE,
-    PRIMARY KEY(id, lesson_id)
+ALTER TABLE instrument ADD CONSTRAINT PK_instrument PRIMARY KEY (id);
+
+
+CREATE TABLE instrument_price (
+ id INT GENERATED ALWAYS AS IDENTITY NOT NULL,
+ instrument_type_id INT GENERATED ALWAYS AS IDENTITY NOT NULL,
+ active_from TIMESTAMP(6) NOT NULL,
+ rental_price REAL NOT NULL
 );
 
-CREATE TABLE "booking" (
-    id INT GENERATED ALWAYS AS IDENTITY,
-    student_id INT NOT NULL,
-    lesson_id INT NOT NULL,
-    pricing_id INT NOT NULL,
-    date_time TIMESTAMP(6) NOT NULL,
-    CONSTRAINT fk_student FOREIGN KEY (student_id) REFERENCES student(person_id) ON DELETE CASCADE,
-    CONSTRAINT fk_lesson FOREIGN KEY (lesson_id) REFERENCES lesson(id) ON DELETE CASCADE,
-    CONSTRAINT fk_pricing FOREIGN KEY (pricing_id) REFERENCES pricing(id) ON DELETE CASCADE,
-    PRIMARY KEY(id, student_id)
+ALTER TABLE instrument_price ADD CONSTRAINT PK_instrument_price PRIMARY KEY (id);
+
+
+CREATE TABLE instrument_proficiency (
+ id INT GENERATED ALWAYS AS IDENTITY NOT NULL,
+ instructor_id INT NOT NULL,
+ instrument_type_id INT NOT NULL,
+ proficiency SMALLINT NOT NULL
 );
 
-CREATE TABLE "lease" (
-    id INT GENERATED ALWAYS AS IDENTITY,
-    student_id INT NOT NULL,
-    instrument_id INT NOT NULL,
-    price REAL NOT NULL,
-    start_date TIMESTAMP (6) NOT NULL,
-    end_date TIMESTAMP (6) NOT NULL, 
-    CONSTRAINT fk_instrument_id FOREIGN KEY (instrument_id) REFERENCES instrument(id) ON DELETE CASCADE,
-    CONSTRAINT fk_student_id FOREIGN KEY (student_id) REFERENCES student(person_id) ON DELETE CASCADE,
-    CHECK (start_date < end_date AND end_date <= start_date + INTERVAL '12 months'),
-    CHECK (price >= 0), 
-    PRIMARY KEY (id, student_id, instrument_id)
+ALTER TABLE instrument_proficiency ADD CONSTRAINT PK_instrument_proficiency PRIMARY KEY (id);
+
+
+CREATE TABLE lease (
+ id INT GENERATED ALWAYS AS IDENTITY NOT NULL,
+ student_id INT NOT NULL,
+ instrument_id INT NOT NULL,
+ start_date TIMESTAMP(6) NOT NULL,
+ end_date TIMESTAMP(6) NOT NULL
 );
 
-CREATE OR REPLACE FUNCTION ensure_max_two_leases_func() RETURNS TRIGGER AS $$
-BEGIN
-	IF ( SELECT COUNT(*) FROM lease WHERE student_id = NEW.student_id
-		AND (start_date < NEW.end_date AND NEW.start_date < end_date) ) >= 2 THEN
-		RAISE EXCEPTION 'A student can only lease 2 instruments at the same time.';
-	END IF;
-	RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+ALTER TABLE lease ADD CONSTRAINT PK_lease PRIMARY KEY (id,student_id,instrument_id);
 
-CREATE TRIGGER ensure_max_two_leases
-BEFORE INSERT OR UPDATE ON lease
-FOR EACH ROW EXECUTE FUNCTION ensure_max_two_leases_func();
 
-CREATE TABLE "person_address" (
-    person_id INT NOT NULL,
-    address_id INT NOT NULL,
-    CONSTRAINT fk_person_id FOREIGN KEY (person_id) REFERENCES person(id) ON DELETE CASCADE,
-    CONSTRAINT fk_address_id FOREIGN KEY (address_id) REFERENCES address(id) ON DELETE CASCADE,
-    PRIMARY KEY (person_id, address_id)
+CREATE TABLE lesson (
+ id INT GENERATED ALWAYS AS IDENTITY NOT NULL,
+ instructor_id INT NOT NULL,
+ instrument_type_id INT NOT NULL,
+ level SMALLINT NOT NULL
 );
 
-CREATE TABLE "student_time_slot" (
-    time_slot_id INT NOT NULL,
-    student_id INT NOT NULL,
-    pricing_id INT NOT NULL,
-    PRIMARY KEY (time_slot_id, student_id),
-    CONSTRAINT fk_time_slot FOREIGN KEY (time_slot_id) REFERENCES time_slot(id) ON DELETE CASCADE,
-    CONSTRAINT fk_student FOREIGN KEY (student_id) REFERENCES student(person_id) ON DELETE CASCADE,
-    CONSTRAINT fk_pricing FOREIGN KEY (pricing_id) REFERENCES pricing(id) ON DELETE CASCADE
+ALTER TABLE lesson ADD CONSTRAINT PK_lesson PRIMARY KEY (id);
+
+
+CREATE TABLE student_time_slot (
+ time_slot_id INT NOT NULL,
+ student_id INT NOT NULL,
+ pricing_id INT NOT NULL
 );
+
+ALTER TABLE student_time_slot ADD CONSTRAINT PK_student_time_slot PRIMARY KEY (time_slot_id,student_id);
+
+
+CREATE TABLE booking (
+ id INT GENERATED ALWAYS AS IDENTITY NOT NULL,
+ student_id INT NOT NULL,
+ lesson_id INT NOT NULL,
+ pricing_id INT NOT NULL,
+ date_time TIMESTAMP(6) NOT NULL
+);
+
+ALTER TABLE booking ADD CONSTRAINT PK_booking PRIMARY KEY (id,student_id);
+
+
+CREATE TABLE ensemble (
+ id INT GENERATED ALWAYS AS IDENTITY NOT NULL,
+ instructor_id INT NOT NULL,
+ time_slot_id INT NOT NULL,
+ level SMALLINT NOT NULL,
+ genre VARCHAR(100) NOT NULL,
+ min_students INT NOT NULL,
+ max_students INT NOT NULL
+);
+
+ALTER TABLE ensemble ADD CONSTRAINT PK_ensemble PRIMARY KEY (id);
+
+
+CREATE TABLE group_lesson (
+ id INT GENERATED ALWAYS AS IDENTITY NOT NULL,
+ lesson_id INT NOT NULL,
+ time_slot_id INT NOT NULL,
+ min_students INT NOT NULL
+);
+
+ALTER TABLE group_lesson ADD CONSTRAINT PK_group_lesson PRIMARY KEY (id,lesson_id);
+
+
+ALTER TABLE person_address ADD CONSTRAINT FK_person_address_0 FOREIGN KEY (person_id) REFERENCES person (id);
+ALTER TABLE person_address ADD CONSTRAINT FK_person_address_1 FOREIGN KEY (address_id) REFERENCES address (id);
+
+
+ALTER TABLE student ADD CONSTRAINT FK_student_0 FOREIGN KEY (person_id) REFERENCES person (id);
+
+
+ALTER TABLE contact_details ADD CONSTRAINT FK_contact_details_0 FOREIGN KEY (person_id) REFERENCES person (id);
+
+
+ALTER TABLE contact_person ADD CONSTRAINT FK_contact_person_0 FOREIGN KEY (person_id) REFERENCES person (id);
+
+
+ALTER TABLE instructor ADD CONSTRAINT FK_instructor_0 FOREIGN KEY (person_id) REFERENCES person (id);
+
+
+ALTER TABLE instructor_schedule ADD CONSTRAINT FK_instructor_schedule_0 FOREIGN KEY (instructor_id) REFERENCES instructor (person_id);
+ALTER TABLE instructor_schedule ADD CONSTRAINT FK_instructor_schedule_1 FOREIGN KEY (time_slot_id) REFERENCES time_slot (id);
+
+
+ALTER TABLE instrument ADD CONSTRAINT FK_instrument_0 FOREIGN KEY (instrument_type_id) REFERENCES instrument_type (id);
+
+
+ALTER TABLE instrument_price ADD CONSTRAINT FK_instrument_price_0 FOREIGN KEY (instrument_type_id) REFERENCES instrument_type (id);
+
+
+ALTER TABLE instrument_proficiency ADD CONSTRAINT FK_instrument_proficiency_0 FOREIGN KEY (instructor_id) REFERENCES instructor (person_id);
+ALTER TABLE instrument_proficiency ADD CONSTRAINT FK_instrument_proficiency_1 FOREIGN KEY (instrument_type_id) REFERENCES instrument_type (id);
+
+
+ALTER TABLE lease ADD CONSTRAINT FK_lease_0 FOREIGN KEY (student_id) REFERENCES student (person_id);
+ALTER TABLE lease ADD CONSTRAINT FK_lease_1 FOREIGN KEY (instrument_id) REFERENCES instrument (id);
+
+
+ALTER TABLE lesson ADD CONSTRAINT FK_lesson_0 FOREIGN KEY (instructor_id) REFERENCES instructor (person_id);
+ALTER TABLE lesson ADD CONSTRAINT FK_lesson_1 FOREIGN KEY (instrument_type_id) REFERENCES instrument_type (id);
+
+
+ALTER TABLE student_time_slot ADD CONSTRAINT FK_student_time_slot_0 FOREIGN KEY (time_slot_id) REFERENCES time_slot (id);
+ALTER TABLE student_time_slot ADD CONSTRAINT FK_student_time_slot_1 FOREIGN KEY (student_id) REFERENCES student (person_id);
+ALTER TABLE student_time_slot ADD CONSTRAINT FK_student_time_slot_2 FOREIGN KEY (pricing_id) REFERENCES pricing (id);
+
+
+ALTER TABLE booking ADD CONSTRAINT FK_booking_0 FOREIGN KEY (student_id) REFERENCES student (person_id);
+ALTER TABLE booking ADD CONSTRAINT FK_booking_1 FOREIGN KEY (lesson_id) REFERENCES lesson (id);
+ALTER TABLE booking ADD CONSTRAINT FK_booking_2 FOREIGN KEY (pricing_id) REFERENCES pricing (id);
+
+
+ALTER TABLE ensemble ADD CONSTRAINT FK_ensemble_0 FOREIGN KEY (instructor_id) REFERENCES instructor (person_id);
+ALTER TABLE ensemble ADD CONSTRAINT FK_ensemble_1 FOREIGN KEY (time_slot_id) REFERENCES time_slot (id);
+
+
+ALTER TABLE group_lesson ADD CONSTRAINT FK_group_lesson_0 FOREIGN KEY (lesson_id) REFERENCES lesson (id);
+ALTER TABLE group_lesson ADD CONSTRAINT FK_group_lesson_1 FOREIGN KEY (time_slot_id) REFERENCES time_slot (id);
+
+
